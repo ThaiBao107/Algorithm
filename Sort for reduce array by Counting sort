@@ -1,0 +1,63 @@
+#include<iostream>
+using namespace std;
+#define MAX 100
+
+void enter_array(int a[], int& n)
+{
+	cout << "Nhap so luong phan tu: ";
+	cin >> n;
+	system("cls");
+	for (int i = 0; i < n; i++)
+	{
+		cout << "Nhap phan tu thu " <<i + 1 << ": ";
+		cin >> a[i];
+	}
+}
+
+void show_table(int a[], int n)
+{
+	cout << "DANH SACH" << endl;
+	for (int i = 0; i < n; i++)
+	{
+		cout << "Phan tu thu "<< i + 1 << ": " << a[i] << endl;
+	}
+}
+
+void Counting_Sort(int a[], int b[], int n, int k)
+{
+	int c[MAX];
+	// khai tao mang dem
+	for (int i = 0; i <= k; i++)
+		c[i] = 0;
+	// count 
+	for (int i = 0; i < n; i++)
+		c[a[i]]++;
+	int count = 0;
+	// sort
+	for (int i = 0; i <= k; i++)
+	{
+		while (c[i] > 0)
+		{
+			b[count++] = i; // sort and save for array b
+			c[i]--;
+		}
+	}
+}
+
+
+int main()
+{
+	int a[MAX];
+	int b[MAX];
+	int n = 0; // Save number largest on array
+	enter_array(a, n);
+	system("cls");
+	int k = a[0];
+	for (int i = 0; i < n; i++)
+		k = (k < a[i]) ? k = a[i] : k = k;
+	Counting_Sort(a, b, n, k);
+	system("cls");
+	show_table(b, n);
+	system("pause");
+	return 0;
+}
