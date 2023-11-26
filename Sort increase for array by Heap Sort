@@ -1,0 +1,63 @@
+#include<iostream>
+using namespace std;
+
+void nhapmang(int a[], int& n)
+{
+	do {
+		cout << "\n So luong phan tu mang:";
+		cin >> n;
+	} while (n <= 0 || n > 100);
+	for (int i = 0; i < n; i++)
+	{
+		cout << "Phan tu thu " << i + 1 << ": ";
+		cin >> a[i];
+	}
+}
+void shift(int a[], int i, int n)
+{
+	int j = 2 * i + 1;
+	if (j >= n) return;
+	if (j + 1 < n) 
+		if (a[j] < a[j + 1]) 
+			j++;
+	if (a[i] >= a[j])
+		return;
+	else {
+		int x = a[i];
+		a[i] = a[j];
+		a[j] = x;
+		shift(a, j, n);
+	}
+}
+void HeapSort(int a[], int n)
+{
+	int i = n / 2;
+	while (i >= 0) 
+	{
+		shift(a, i, n); i--;
+	}
+	int right = n - 1; 
+	while (right > 0)
+	{
+		if (a[0] > a[right])
+			swap(a[0], a[right]);
+		right--;
+		if (right > 0)
+			shift(a, 0, right);
+	}
+}
+
+void xuatmang(int a[], int n)
+{
+	cout << "Mang a sau khi sap tang:\n";
+	for (int i = 0; i < n; i++)
+		cout << a[i];
+}
+void main()
+{
+	int a[100], n;
+	nhapmang(a, n);
+	HeapSort(a, n);
+	xuatmang(a, n);
+	system("pause");
+}
