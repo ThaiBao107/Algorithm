@@ -15,7 +15,7 @@ int read_file_SL()
 {
 	ifstream inF;
 	int n = 0;
-	inF.open("MTK_CH.txt", ios_base::out);
+	inF.open("MTK_CH.txt", ios_base::in);
 	if (inF.is_open())
 	{
 		char a;
@@ -32,7 +32,7 @@ int read_file_SL()
 void read_file(int c[][MAX], int& n)
 {
 	ifstream inF;
-	inF.open("MTK_CH.txt", ios_base::out);
+	inF.open("MTK_CH.txt", ios_base::in);
 	if (inF.is_open())
 	{
 		int b; char a;
