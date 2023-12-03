@@ -1,0 +1,80 @@
+#include<iostream>
+#include<fstream>
+#define MAX 20
+using namespace std;
+
+void init_array(int a[][MAX], int n)
+{
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < n; j++)
+			a[i][j] = 0;
+}
+
+
+int read_file_SL()
+{
+	ifstream inF;
+	int n = 0;
+	inF.open("MTK_CH.txt", ios_base::out);
+	if (inF.is_open())
+	{
+		char a;
+		do
+		{
+			inF >> a;
+			n++;
+		} while (a != '0');
+		inF.close();
+	}
+	return n - 1;
+}
+
+void read_file(int c[][MAX], int& n)
+{
+	ifstream inF;
+	inF.open("MTK_CH.txt", ios_base::out);
+	if (inF.is_open())
+	{
+		int b; char a;
+		n = read_file_SL();
+		init_array(c, n);
+		for (int i = 0; i < n; i++)
+			inF >> a;
+
+		while (!inF.eof())
+		{
+			for (int i = 0; i < n; i++)
+				for (int j = 0; j < n; j++)
+				{
+					inF >> b;
+					c[i][j] = b;
+				}
+		}
+		cout << "Doc file thanh cong" << endl;
+		inF.close();
+	}
+	else
+		cout << "Khong doc duoc file" << endl;
+}
+
+
+void show_graph(int a[][MAX], int n)
+{
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+			cout << a[i][j] << " ";
+		cout << endl;
+	}
+}
+
+
+int main()
+{
+	int a[MAX][MAX];
+	int n = 0;
+	read_file(a, n);
+	show_graph(a, n);
+	system("pause");
+	return 0;
+}
