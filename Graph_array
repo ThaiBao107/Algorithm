@@ -1,0 +1,88 @@
+#include<iostream>
+using namespace std;
+#define MAX 100
+
+void enter_array(int a[][MAX], int &n)
+{
+	cout << "nhap so luong dinh trong do thi: ";
+	cin >> n;
+	system("cls");
+	for (int i = 0; i < n; i++)
+	{
+		cout << "nhap dinh ke cua dinh thu " << i + 1 << ":" << endl;
+		for (int j = 0; j < n; j++)
+		{
+			cout << "Dinh ke thu " << j + 1 << ": ";
+			while (true)
+			{
+				cin >> a[i][j];
+				if (a[i][j] == 0 || a[i][j] == 1) break;
+				else
+					cout << "Nhap sai yeu cau, nhap lai : ";
+			}
+		}
+		system("cls");
+	}
+}
+
+
+void show_array(int a[][MAX], int n)
+{
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			cout << a[i][j] << " ";
+		}
+		cout << endl;
+	}
+}
+
+
+int main()
+{
+	int a[MAX][MAX];
+	int n = 0;
+	int choose;
+	do
+	{
+		cout << "------------------MENU-------------------------" << endl;
+		cout << "1. Enter Array                                  " << endl;
+		cout << "2. Browse Array                                 " << endl;
+		cout << "3. EXIT                                         " << endl;
+		cout << "-----------------------------------------------" << endl;
+		cout << "choose: ";
+		while (true)
+		{
+			cin >> choose;
+			if (choose > 0 && choose <= 3) break;
+			else
+				cout << "Nhap sai, nhap lai: ";
+		}
+		system("cls");
+		switch (choose)
+		{
+		case 1:
+		{
+			enter_array(a, n);
+			break;
+		}
+		case 2:
+		{
+			if (n == 0) cout << "mang chua khoi tao" << endl;
+			else
+			{
+				show_array(a, n);
+			}
+			break;
+		}
+		case 3:
+		{
+			return 0;
+		}
+
+		}
+		system("pause");
+		system("cls");
+	} while (true);
+}
