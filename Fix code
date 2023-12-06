@@ -1,7 +1,8 @@
 #include<iostream>
 #include<fstream>
-using namespace std;
 #define MAX 100
+using namespace std;
+
 
 
 struct NODE
@@ -30,18 +31,18 @@ NODE* init_NODE(int x)
 	return p;
 }
 
-void Push(STACK& s, NODE *p)
+void Push(STACK& s, NODE* p) //push la them vao dau danh sach
 {
 	if (s.pTop == NULL)
 		s.pTop = p;
 	else
 	{
-		s.pTop->link = p;
+		p->link = s.pTop;
 		s.pTop = p;
 	}
 }
 
-void Pop(STACK &s, int &x)
+void Pop(STACK& s, int& x)
 {
 	if (s.pTop == NULL)
 		return;
@@ -50,7 +51,7 @@ void Pop(STACK &s, int &x)
 		NODE* h = s.pTop;
 		x = s.pTop->data;
 		s.pTop = s.pTop->link;
-		delete h;
+		delete h;	
 	}
 }
 
@@ -77,7 +78,7 @@ int read_file_SL()
 		{
 			inF >> r;
 			i++;
-		} while (r == '0' || r == '1');
+		} while (r != '0' && r != '1'); // chu y
 		inF.close();
 	}
 	else
@@ -89,15 +90,16 @@ int read_file_SL()
 
 void read_file(int frist[][MAX], int& n)
 {
-	n = read_file_SL();
-	init_array(frist, n);
 	ifstream inF;
 	inF.open("MTK.txt", ios_base::in);
 	if (inF.is_open())
 	{
 		char r; int a;
+		n = read_file_SL();
+		init_array(frist, n);
 		for (int i = 0; i < n; i++)
-			inF >> r;
+				inF >> r;
+		
 		while (!inF.eof())
 		{
 			for (int i = 0; i < n; i++)
@@ -107,11 +109,102 @@ void read_file(int frist[][MAX], int& n)
 					frist[i][j] = a;
 				}
 		}
+		cout << "Doc file thanh cong" << endl;
 		inF.close();
 	}
 	else
 		cout << "Khong doc duoc file" << endl;
 }
+
+//-----DFS-------------------------------
+
+
+void init_C(int C[], int n)
+{
+	for (int i = 0; i < n; i++)
+		C[i] = 1;    // 1 la chua xet, 0 la xe roi
+}
+
+
+
+
+
+//void Browse_DFS(int DSF[], int k, int n, int frist[][MAX], STACK &s)
+//{
+//	int count_DFS = 0; //dem thu tu trong dfs
+//	int C[MAX]; // dinh chua xet
+//	init_C(C, n);
+//
+//	NODE* p = init_NODE(k);
+//	Push(s, p);
+//
+//	DSF[count_DFS++] = k;
+//	C[k] = 0;
+//	int u = k, v = -1;
+//	while (s.pTop != NULL)
+//	{
+//		if (v == n)
+//			Pop(s, u);
+//		for (int v = 0; v < n; v++)
+//		{
+//			if (C[v] == 1 && frist[u][v] != 0)
+//			{
+//				NODE* d = init_NODE(v);
+//				Push(s, d);
+//				DSF[count_DFS++] = v;
+//				C[v] = 0;
+//				u = v;
+//				break;
+//			}
+//		}
+//	}
+//}
+
+void Browse_DFS(int DSF[], int k, int n, int frist[][MAX]) {
+	int count_DFS = 0;
+	int C[MAX];
+	init_C(C, n);
+
+	STACK s;
+	init_STACK(s);
+
+	NODE* p = init_NODE(k);
+	Push(s, p);
+
+	DSF[count_DFS++] = k;
+	C[k] = 0;
+
+	while (s.pTop != NULL) {
+		int u = s.pTop->data;
+		bool found = false;
+		for (int v = 0; v < n; v++) {
+			if (C[v] == 1 && frist[u][v] != 0) {
+				NODE* d = init_NODE(v);
+				Push(s, d);
+				DSF[count_DFS++] = v;
+				C[v] = 0;
+				found = true;
+				break;
+			}
+		}
+		if (found != true){
+			int temp;
+			Pop(s, temp); // Xoá phần tử đỉnh của ngăn xếp
+		}
+	}
+}
+
+
+void output_DFS(int a[], int n)
+{
+	cout << "Browse DFS" << endl;
+	for (int i = 0; i < n; i++)
+		cout << a[i] << " ";
+}
+//---------------------------------------
+
+
+
 
 void output(int frist[][MAX], int n)
 {
@@ -123,12 +216,76 @@ void output(int frist[][MAX], int n)
 	}
 }
 
+
+
+
 int main()
 {
 	int frist[MAX][MAX];
 	int n = 0;
-	read_file(frist, n);
-	output(frist, n);
-	system("pause");
+	int DFS[MAX];
+	int choose;
+	do
+	{
+		cout << "---------MENU------------" << endl;
+		cout << "1. Read file for array     " << endl;
+		cout << "2. Browse array             " << endl;
+		cout << "3. Browse graph by DFS        " << endl;
+		cout << "4. EXIT                        " << endl;
+		cout << "--------------------------" << endl;
+		cout << "Choose: ";
+		while (true)
+		{
+			cin >> choose;
+			if (choose > 0 && choose <= 4) break;
+			else
+				cout << "Nhap sai yeu cau, nhap lai: ";
+		}
+		system("cls");
+		switch (choose)
+		{
+		case 1:
+		{
+			read_file(frist, n);
+			break;
+		}
+		case 2:
+		{
+			if (n == 0) cout << "Chua co du lieu" << endl;
+			else
+			{
+				cout << "ARRAY" << endl;
+				output(frist, n);
+			}
+			break;
+		}
+		case 3:
+		{
+			if (n == 0) cout << "Chua co du lieu" << endl;
+			else
+			{
+				int k;
+				cout << "Browse graph by DFS" << endl;
+				cout << "Nhap so dinh can duyet DFS: ";
+				while (true)
+				{
+					cin >> k;
+					if (k >= 0 && k <= n) break;
+					else
+						cout << "Nhap sai , nhap lai: ";
+				}
+				Browse_DFS(DFS, k, n, frist);
+				output_DFS(DFS, n);
+			}
+			break;
+		}
+		case 4:
+		{
+			return 0;
+		}
+		}
+		system("pause");
+		system("cls");
+	} while (true);
 	return 0;
 }
