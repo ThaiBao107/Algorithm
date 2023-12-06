@@ -1,0 +1,134 @@
+#include<iostream>
+#include<fstream>
+using namespace std;
+#define MAX 100
+
+
+struct NODE
+{
+	int data;
+	NODE* link;
+};
+
+
+struct STACK
+{
+	NODE* pTop;
+};
+
+
+void init_STACK(STACK& s)
+{
+	s.pTop = NULL;
+}
+
+NODE* init_NODE(int x)
+{
+	NODE* p = new NODE;
+	p->data = x;
+	p->link = NULL;
+	return p;
+}
+
+void Push(STACK& s, NODE *p)
+{
+	if (s.pTop == NULL)
+		s.pTop = p;
+	else
+	{
+		s.pTop->link = p;
+		s.pTop = p;
+	}
+}
+
+void Pop(STACK &s, int &x)
+{
+	if (s.pTop == NULL)
+		return;
+	else
+	{
+		NODE* h = s.pTop;
+		x = s.pTop->data;
+		s.pTop = s.pTop->link;
+		delete h;
+	}
+}
+
+
+void init_array(int frist[][MAX], int n)
+{
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < n; j++)
+			frist[i][j] = 0;
+}
+
+
+
+
+int read_file_SL()
+{
+	int i = 0;
+	ifstream inF;
+	inF.open("MTK.txt", ios_base::in);
+	if (inF.is_open())
+	{
+		char r;
+		do
+		{
+			inF >> r;
+			i++;
+		} while (r == '0' || r == '1');
+		inF.close();
+	}
+	else
+		cout << "Khong doc duoc file" << endl;
+
+	return i - 1;
+}
+
+
+void read_file(int frist[][MAX], int& n)
+{
+	n = read_file_SL();
+	init_array(frist, n);
+	ifstream inF;
+	inF.open("MTK.txt", ios_base::in);
+	if (inF.is_open())
+	{
+		char r; int a;
+		for (int i = 0; i < n; i++)
+			inF >> r;
+		while (!inF.eof())
+		{
+			for (int i = 0; i < n; i++)
+				for (int j = 0; j < n; j++)
+				{
+					inF >> a;
+					frist[i][j] = a;
+				}
+		}
+		inF.close();
+	}
+	else
+		cout << "Khong doc duoc file" << endl;
+}
+
+void output(int frist[][MAX], int n)
+{
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+			cout << frist[i][j] << " ";
+		cout << endl;
+	}
+}
+
+int main()
+{
+	int frist[MAX][MAX];
+	int n = 0;
+	read_file(frist, n);
+	output(frist, n);
+	system("pause");
+	return 0;
+}
