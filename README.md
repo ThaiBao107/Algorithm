@@ -1,6 +1,4 @@
-# Project Title
-Algorithm
-A brief description of what this project does and who it's for
+# Algorithm
 The project aims to give you a better understanding of some common data structures such as linked lists, hash tables, and sorting algorithms. And evaluate the complexity of the algorithm. Project for students at universities.
 
 
