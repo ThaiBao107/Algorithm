@@ -1,0 +1,525 @@
+#include <iostream>
+#include <conio.h>
+#include <fstream>
+using namespace std;
+
+const int MAX = 20;
+int a[MAX][MAX];
+int temp[MAX][MAX];
+int n;
+
+// doc mang 2 chieu tu file
+void file(int& n) {
+    ifstream file("data2.txt", ios::in);
+    file >> n;
+    if (file.is_open()) {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                file >> a[i][j];
+            }
+        }
+        file.close();
+        cout << "doc file thanh cong\n";
+    }
+    else
+        cout << "ko doc duoc file\n";
+}
+
+void outputArr(int a[][MAX], int n) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++)
+            cout << " " << a[i][j];
+        cout << "\n";
+    }
+}
+
+struct Node {
+    int info;
+    Node* link;
+};
+
+Node* front, * rear; // tạo đầu và đuôi của hàng đợi
+Node* sp; // tạo stack
+
+void initQueue() {
+    front = NULL;
+    rear = NULL;
+}
+
+void initStack() {
+    sp = NULL;
+}
+
+// tạo node mới để cho vào hàng đợi hoặc stack
+Node* createNode(int x) {
+    Node* p = new Node;
+    p->info = x;
+    p->link = NULL;
+    return p;
+}
+
+void pushStack(int x) {
+
+    // tạo node để thêm vào stack
+    Node* p = createNode(x);
+
+    // gắn x vào p->info
+    p->info = x;
+
+    // chuyển liên kết của p vào sp (sp là đỉnh stack)
+    p->link = sp;
+
+    // lúc này p sẽ thành đỉnh mới của stack
+    sp = p;
+}
+
+void popStack(int& x) {
+    if (sp) {
+        // lưu giá trị cần pop vào p
+        Node* p = sp;
+
+        // lấy info gắn vào x để sử dụng
+        x = p->info;
+
+        // di chuyển sp xuống để tiếp tục thao tác sau này
+        sp = p->link;
+
+        // xóa phần tử khỏi stack
+        delete p;
+    }
+}
+
+void pushQueue(int x) {
+    Node* p = createNode(x);
+
+    // nếu như hàng đợi trống thì thêm vào đầu hàng đợi
+    if (rear == NULL)
+        front = p;
+    else
+        // hàng đợi không trống thì thêm vào sau cùng
+        rear->link = p;
+
+    // chỉnh node vừa thêm thành node cuối cùng của hàng đợi
+    rear = p;
+}
+
+void popQueue(int& x) {
+
+    // nếu hàng đợi không trống mới thực hiện xóa
+    if (front != NULL) {
+        Node* p = front;
+
+        // lưu giá trị để trả về khi pop ra
+        x = p->info;
+
+        // chỉnh front thành phần tử liền kề sau nó
+        front = front->link;
+
+        // nếu không có phần tử sau nó thì nghĩa là hàng đợi đã hết
+        // gán front và rear bằng null
+        if (front == NULL)
+            rear = NULL;
+
+        // xóa phần tử đầu tiên ra khỏi hàng đợi
+        delete p;
+    }
+}
+
+
+// CODE ĐỂ DUYỆT BFS //
+
+
+int C1[20]; // lưu trữ đỉnh chưa xét;
+// 1 là chưa xét; 0 là đã xét
+int bfs[20];   // lưu danh sách phần tử đã duyệt
+int nbfs = 0;   // chỉ số lưu đỉnh đã xét        
+
+void initBFS() {
+    for (int i = 0; i < n; i++) // n là số đỉnh của đồ thị
+        C1[i] = 1;
+}
+
+void BFS(int v) { // v là đỉnh bắt đầu 
+    int w, p;
+
+    // đẩy đỉnh đầu tiên vào hàng đợi
+    pushQueue(v);
+
+    // đánh dấu là đã xét, C[v] = 0
+    C1[v] = 0;
+
+    // khi hàng đợi không rỗng
+    while (front != NULL) {
+
+        // lấy phần tử đầu tiên trong hàng đợi ra
+        popQueue(p);
+
+        // lưu đỉnh đầu tiên vào 1 mảng để có thể xuất sau khi hoàn thành duyệt
+        bfs[nbfs] = p;
+
+        // số lượng đỉnh đã xét tăng lên 1 đơn vị
+        nbfs++;
+
+        // duyệt hàng của đỉnh đang xét (duyệt qua các đỉnh xem nó có kề với đỉnh đang xét hay không) qua ma trận kề
+        for (w = 0; w < n; w++)
+
+            // nếu đỉnh w chưa xét (nghĩa là C[w]=1) và đỉnh w này có kề với đỉnh đang xét
+            if (C1[w] == 1 && a[p][w] != 0) {
+
+                // đẩy vào hàng đợi
+                pushQueue(w);
+
+                // chuyển trạng thái của đỉnh w này thành đã xét
+                C1[w] = 0;
+            }
+    }
+}
+
+// xuất các đỉnh đã xét theo bfs
+void outputBFS() {
+    cout << "BFS: ";
+    for (int i = 0; i < nbfs; i++) // nbfs là số đỉnh của đồ thị
+        cout << (char)(bfs[i] + 65) << " ";
+}
+
+
+// CODE ĐỂ DUYỆT DFS //
+
+int C2[20]; // lưu trữ đỉnh chưa xét;
+// 1 là chưa xét; 0 là đã xét
+int dfs[20];// lưu danh sách phần tử đã duyệt
+int ndfs = 0; // chỉ số lưu đỉnh đã xét
+
+void initDFS() {
+    for (int i = 0; i < n; i++) // n là số đỉnh của đồ thị
+        C2[i] = 1;
+}
+
+void DFS(int s) {  // truyền vào đỉnh xuất phát
+
+    // đẩy đỉnh xuất phát này vào stack
+    pushStack(s);
+
+    // đỉnh xuất phát luôn được đưa vào mảng 
+    dfs[ndfs] = s;
+
+    // tăng chỉ số đỉnh đã duyệt lên 1 đơn vị
+    ndfs++;
+
+    // đỉnh s chuyển trạng thái thành đã xét
+    C2[s] = 0;
+
+    //
+    int v = -1, u = s;
+
+    // khi stack không trống
+    while (sp) {
+
+        // nếu v đã duyệt hết các đỉnh mà không có thêm đỉnh mới (đỉnh hiện tại đã hết đỉnh liền kề)
+        if (v == n)
+            // pop đỉnh ra khỏi stack, duyệt đỉnh kế tiếp
+            popStack(u);
+
+        // chạy v duyệt qua các đỉnh liền kề của đỉnh đang xét
+        for (v = 0; v < n; v++)
+
+            // nếu có đỉnh liền kề và chưa xét
+            if (a[u][v] != 0 && C2[v] == 1) {
+                pushStack(u);
+                pushStack(v);
+
+                // thêm v vào mảng dfs
+                dfs[ndfs] = v;
+
+                // tăng số đỉnh đã xét lên 1
+                ndfs++;
+
+                // đỉnh v chuyển trạng thái thành đã xét
+                C2[v] = 0;
+
+                // cập nhật u = v để tiếp tục duyệt từ v
+                u = v;
+
+                // break khỏi vòng lặp for để chỉ duyệt một đỉnh v tại mỗi bước
+                break;
+            }
+    }
+}
+
+// xuất các đỉnh đã xét theo dfs
+void outputDFS() {
+    cout << "DFS: ";
+    for (int i = 0; i < ndfs; i++) // ndfs là số đỉnh của đồ thị
+        cout << (char)(dfs[i] + 65) << " ";
+}
+
+// CODE CÀI ĐẶT GIẢI THUẬT PRIM //
+
+// Khai báo các mảng và biến cho thuật toán Prim
+int E1[MAX]; // Mảng lưu đỉnh đầu của các cạnh trong tập E
+int E2[MAX]; // Mảng lưu đỉnh cuối của các cạnh trong tập E
+int wE[MAX]; // Mảng lưu trọng số của các cạnh trong tập E
+int nE = 0;   // Số phần tử trong tập E
+
+int T1[MAX]; // Mảng lưu đỉnh đầu của các cạnh trong tập T
+int T2[MAX]; // Mảng lưu đỉnh cuối của các cạnh trong tập T
+int wT[MAX]; // Mảng lưu trọng số của các cạnh trong tập T
+int nT = 0;   // Số phần tử trong tập T
+
+
+// Hàm kiểm tra xem phần tử d có tồn tại trong mảng D không
+int TonTai(int d, int D[], int nD) {
+    for (int i = 0; i < nD; i++)
+        if (D[i] == d)
+            return 1;
+    return 0;
+}
+
+// Hàm xóa phần tử tại vị trí i trong mảng E1, E2, wE
+void XoaViTriE(int i) {
+    for (int j = i; j < nE; j++) {
+        E1[j] = E1[j + 1];
+        E2[j] = E2[j + 1];
+        wE[j] = wE[j + 1];
+    }
+    nE--;
+}
+
+// Hàm xóa cạnh (u, v) khỏi tập E
+void XoaCanhE(int u, int v) {
+    // Tìm và xóa cạnh (u, v) trong tập E
+    for (int i = 0; i < nE; i++)
+        if (E1[i] == u && E2[i] == v) {
+            XoaViTriE(i);
+            break;
+        }
+}
+
+// Hàm thực hiện thuật toán Prim
+void prim(int s) {
+    int u = s, min, i, d1, d2;
+
+    // Tạo bản sao của ma trận kề để không làm thay đổi ma trận gốc
+    int copyA[MAX][MAX];
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            copyA[i][j] = a[i][j];
+
+    // Mảng để theo dõi các thành phần liên thông
+    int component[MAX];
+    for (int i = 0; i < n; i++)
+        component[i] = i;
+
+    // Duyệt đến khi có đủ n - 1 cạnh
+    while (nT < n - 1) {
+        // Tìm các cạnh kề và thêm vào tập E
+        for (int v = 0; v < n; v++)
+            if (copyA[u][v] != 0)
+                if (TonTai(v, T2, nT) == 0) {
+                    E1[nE] = u;
+                    E2[nE] = v;
+                    wE[nE] = copyA[u][v];
+                    nE++;
+                }
+        // Tìm cạnh có trọng số nhỏ nhất
+        for (i = 0; i < nE; i++)
+            if (TonTai(E2[i], T2, nT) == 0) {
+                min = wE[i];
+                d1 = E1[i];
+                d2 = E2[i];
+                break;
+            }
+
+        // Tìm cạnh có trọng số nhỏ nhất trong tập E
+        for (i = 0; i < nE; i++)
+            if (TonTai(E2[i], T2, nT) == 0)
+                if (min > wE[i]) {
+                    min = wE[i];
+                    d1 = E1[i];
+                    d2 = E2[i];
+                }
+
+        // Kiểm tra xem việc thêm cạnh có tạo chu trình không
+        if (component[d1] != component[d2]) {
+            // Thêm cạnh vào tập T
+            T1[nT] = d1;
+            T2[nT] = d2;
+            wT[nT] = copyA[d1][d2];
+            copyA[d1][d2] = 0;
+            copyA[d2][d1] = 0;
+            nT++;
+
+            // Hợp nhất các thành phần liên thông
+            int oldComponent = component[d2];
+            for (int j = 0; j < n; j++)
+                if (component[j] == oldComponent)
+                    component[j] = component[d1];
+        }
+
+        // Xóa cạnh khỏi tập E và chọn đỉnh tiếp theo
+        XoaCanhE(d1, d2);
+        u = d2;
+    }
+}
+
+
+// Hàm in kết quả sau khi thực hiện thuật toán Prim
+void outputPrim_Kruskal() {
+    int tong = 0;
+    for (int i = 0; i < nT; i++) {
+        cout << "\n" << "(" << (char)(T1[i] + 65) << "," << (char)(T2[i] + 65) << ") = " << wT[i];
+        tong += wT[i];
+    }
+    cout << "\n Tong = " << tong;
+}
+
+// Hàm tìm gốc của một đỉnh trong cây
+int TimGoc(int u, int parent[]) {
+    while (parent[u] != u) {
+        u = parent[u]; // Di chuyển lên trên cây
+    }
+    return u; // Trả về gốc của cây
+}
+
+// Hàm tạo chu trình cho thuật toán Union-Find
+void TaoChuTrinh(int u, int v, int parent[]) {
+    int root_u = TimGoc(u, parent);
+    int root_v = TimGoc(v, parent);
+
+    parent[root_u] = root_v; // Gán gốc của đỉnh u là root của đỉnh v
+}
+
+
+// Hàm tạo tập cạnh từ ma trận kề
+void taoE() {
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            if (temp[i][j] != 0) {
+                E1[nE] = i; // Đỉnh đầu tiên của cạnh
+                E2[nE] = j; // Đỉnh thứ hai của cạnh
+                wE[nE] = temp[i][j]; // Trọng số của cạnh
+                temp[i][j] = 0; // Đánh dấu đã sử dụng cạnh
+                temp[j][i] = 0; // Đánh dấu đã sử dụng cạnh đối xứng
+                nE++; // Tăng số lượng cạnh
+            }
+}
+
+// Hàm sắp xếp tập cạnh theo trọng số tăng dần
+void SapXepE() {
+    for (int i = 0; i < nE - 1; i++)
+        for (int j = i + 1; j < nE; j++)
+            // nếu trọng số của cạnh trước lớn hơn cạnh sau
+            if (wE[i] > wE[j]) {
+                swap(wE[i], wE[j]); // Hoán đổi trọng số
+
+                // Hoán đổi cạnh (gồm 2 đỉnh)
+                swap(E1[i], E1[j]);
+                swap(E2[i], E2[j]);
+            }
+}
+
+// Hàm tìm cây bao trùm nhỏ nhất bằng thuật toán Kruskal
+void kruskal() {
+    int parent[MAX];
+    for (int i = 0; i < n; i++)
+        parent[i] = i; // Khởi tạo mỗi đỉnh là một cây độc lập
+
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            temp[i][j] = a[i][j]; // Sao chép ma trận kề
+
+    taoE(); // Tạo tập cạnh
+    SapXepE(); // Sắp xếp tập cạnh theo trọng số
+
+    for (int i = 0; i < nE; i++) {
+        int root1 = TimGoc(E1[i], parent); // Gốc của cây chứa đỉnh đầu tiên
+        int root2 = TimGoc(E2[i], parent); // Gốc của cây chứa đỉnh thứ hai
+
+        // Nếu 2 đỉnh thuộc cây khác nhau
+        if (root1 != root2) {
+            T1[nT] = E1[i]; // Thêm đỉnh đầu tiên vào cây bao trùm nhỏ nhất
+            T2[nT] = E2[i]; // Thêm đỉnh thứ hai vào cây bao trùm nhỏ nhất
+            wT[nT] = wE[i]; // Thêm trọng số vào cây bao trùm nhỏ nhất
+            nT++; // Tăng số lượng cạnh trong cây bao trùm nhỏ nhất
+
+            TaoChuTrinh(E1[i], E2[i], parent); // Kết hợp cây chứa đỉnh đầu tiên và cây chứa đỉnh thứ hai
+        }
+
+        if (nT == n - 1)
+            break; // Đã có đủ n - 1 cạnh trong cây bao trùm nhỏ nhất
+    }
+}
+
+
+// hàm main
+int main() {
+    int choice;
+    int x;
+    do {
+        system("cls");
+        cout << "\t41_Huy\n\n";
+        cout << "1. Doc file\n"
+            << "2. Xuat ma tran ke\n"
+            << "3. Duyet BFS\n"
+            << "4. Duyet DFS\n"
+            << "5. Prim\n"
+            << "6. Kruskal\n"
+            << "0. Thoat\n"
+            << "Nhap lua chon: ";
+        cin >> choice;
+        switch (choice) {
+        case 1:
+            file(n);
+            break;
+        case 2:
+            outputArr(a, n);
+            break;
+        case 3:
+            initBFS();
+            do {
+                cout << "nhap dinh bat dau: ";
+                cin >> x;
+                if (x < 0 || x >= n)
+                    cout << "nhap lai gia tri hop le\n";
+            } while (x < 0 || x >= n);
+            BFS(x);
+            outputBFS();
+            nbfs = 0;
+            break;
+        case 4:
+            initDFS();
+            do {
+                cout << "nhap dinh bat dau: ";
+                cin >> x;
+                if (x < 0 || x >= n)
+                    cout << "nhap lai gia tri hop le\n";
+            } while (x < 0 || x >= n);
+            DFS(x);
+            outputDFS();
+            ndfs = 0;
+            break;
+        case 5:
+            do {
+                cout << "nhap dinh bat dau: ";
+                cin >> x;
+                if (x < 0 || x >= n)
+                    cout << "nhap lai gia tri hop le\n";
+            } while (x < 0 || x >= n);
+            prim(x);
+            outputPrim_Kruskal();
+            nE = 0;
+            nT = 0;
+            break;
+        case 6:
+            kruskal();
+            outputPrim_Kruskal();
+            nE = 0;
+            nT = 0;
+            break;
+        default:
+            break;
+        }
+        _getch();
+    } while (choice != 0);
+    return 0;
+}
